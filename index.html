@@ -6,8 +6,21 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>TypeScript Basics</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <script src="app.js"></script>
+
+<button id="slow-task">START SLOW TASK</button>
+<button id="very-slow-task">START VERY SLOW TASK</button>
+<hr>
+<button id="fast-task">START FAST TASK</button>
+<button id="very-fast-task">START VERY FAST TASK</button>
+
+<hr>
+<h3>Background Tasks: <span id="bg-tasks"></span></h3>
+
+<div class="loader" id="spinner"></div>
+
 </body>
 </html>

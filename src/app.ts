@@ -1,71 +1,58 @@
-import {merge, Observable} from "rxjs";
-import {
-    distinctUntilChanged,
-    filter,
-    mapTo,
-    pairwise,
-    scan,
-    shareReplay,
-    startWith,
-    switchMap,
-    takeUntil
-} from "rxjs/operators";
-
-/**
- * How do we count?
- * Start from zero
- * When an async task start, increase the count by 1
- * When a task ends, decrease the count by 1
- */
-
-const taskStarts = new Observable()
-const taskCompletions = new Observable()
-const showSpinner = new Observable()
-
-const loadUp = taskStarts.pipe(mapTo(1))
-const loadDown = taskCompletions.pipe(mapTo(-1))
-
-// ################################################# //
-const loadVariations = merge(loadUp, loadDown)
-
-// Need to keep a running count of emissions
-const currentLoadCount = loadVariations.pipe(
-    startWith(0),
-    scan((totalCurrent, changeInLoads) => {
-        return Math.max(totalCurrent + changeInLoads, 0)
-    }),
-    distinctUntilChanged(),
-    shareReplay({bufferSize: 1, refCount: true})
-)
+import {TaskProgressService} from "./taskProgressService";
+import {fromEvent, interval} from "rxjs";
+import {delay, tap, timeInterval, timeout} from "rxjs/operators";
 
 
-// ################################################# //
-/**
- * When does the loader need to hide?
- * When the count of async tasks goes to 0.
- */
+window.onload = () => {
+    const taskProgressService = new TaskProgressService()
+    const spinner = document.getElementById('spinner') as HTMLDivElement
 
-const shouldHideSpinner = currentLoadCount.pipe(
-    filter(count => count === 0)
-)
+    // buttons
+    const slowButton = document.getElementById('slow-task') as HTMLButtonElement
+    const verySlowButton = document.getElementById('very-slow-task') as HTMLButtonElement
+    const fastButton = document.getElementById('fast-task') as HTMLButtonElement
+    const veryFastButton = document.getElementById('very-fast-task') as HTMLButtonElement
 
-/**
- * When does the loader need to show?
- * When the count of async tasks goes from 0 to 1.
- */
+    // buttonEvents
+    const onSlowButton = fromEvent(slowButton, 'click')
+    const onVerySlowButton = fromEvent(verySlowButton, 'click')
+    const onFastButton = fromEvent(fastButton, 'click')
+    const onVeryFastButton = fromEvent(veryFastButton, 'click')
 
-const shouldShowSpinner = currentLoadCount.pipe(
-    // pairwise operator emits a tuple of previous value and current value
-    pairwise(),
-    filter(([prev, current]) => prev === 0 && current === 1)
-)
+    // button observables
+    onSlowButton.pipe(
+        tap(() => taskProgressService.newTaskStarted()),
+        delay(6000),
+        tap(() => taskProgressService.existingTaskCompleted())
+    ).subscribe()
 
-// ################################################# //
-/**
- * When the spinner needs to show, show it!
- */
+    onVerySlowButton.pipe(
+        tap(() => taskProgressService.newTaskStarted()),
+        delay(3000),
+        tap(() => taskProgressService.existingTaskCompleted())
+    ).subscribe()
 
-shouldShowSpinner.pipe(
-    switchMap(() => showSpinner.pipe(takeUntil(shouldHideSpinner)))
-).subscribe()
+    onFastButton.pipe(
+        tap(() => taskProgressService.newTaskStarted()),
+        delay(600),
+        tap(() => taskProgressService.existingTaskCompleted())
+    ).subscribe()
 
+    onVeryFastButton.pipe(
+        tap(() => taskProgressService.newTaskStarted()),
+        delay(300),
+        tap(() => taskProgressService.existingTaskCompleted())
+    ).subscribe()
+
+    taskProgressService.showSpinner.subscribe(toggleSpinner)
+
+    function toggleSpinner(show: boolean): void {
+        if (show) {
+            console.log('show')
+            spinner.style.display = 'block'
+        } else {
+            console.log('hide')
+            spinner.style.display = 'none'
+        }
+    }
+}
