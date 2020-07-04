@@ -34,7 +34,7 @@ var TaskProgressService = /** @class */ (function () {
             return prev === 0 && current === 1;
         }), operators_1.switchMap(function () { return rxjs_1.timer(2000).pipe(operators_1.takeUntil(shouldHideSpinner)); }));
         /**
-         * When the spinner needs to show, show it!
+         * When the spinner needs to show, show it!!
          */
         this.showSpinner = rxjs_1.merge(shouldShowSpinner.pipe(operators_1.mapTo(true)), shouldHideSpinner.pipe(operators_1.mapTo(false)));
     }

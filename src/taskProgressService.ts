@@ -64,7 +64,7 @@ export class TaskProgressService {
         )
 
         /**
-         * When the spinner needs to show, show it!
+         * When the spinner needs to show, show it!!
          */
         this.showSpinner = merge(
             shouldShowSpinner.pipe(mapTo(true)),
