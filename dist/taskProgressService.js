@@ -32,7 +32,7 @@ var TaskProgressService = /** @class */ (function () {
         operators_1.pairwise(), operators_1.filter(function (_a) {
             var prev = _a[0], current = _a[1];
             return prev === 0 && current === 1;
-        }));
+        }), operators_1.switchMap(function () { return rxjs_1.timer(2000).pipe(operators_1.takeUntil(shouldHideSpinner)); }));
         /**
          * When the spinner needs to show, show it!
          */

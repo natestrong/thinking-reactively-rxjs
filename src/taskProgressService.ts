@@ -1,4 +1,4 @@
-import {merge, Observable, Subject} from "rxjs";
+import {merge, Observable, Subject, timer} from "rxjs";
 import {
     distinctUntilChanged,
     filter,
@@ -59,7 +59,8 @@ export class TaskProgressService {
         const shouldShowSpinner = currentLoadCount.pipe(
             // pairwise operator emits a tuple of previous value and current value
             pairwise(),
-            filter(([prev, current]) => prev === 0 && current === 1)
+            filter(([prev, current]) => prev === 0 && current === 1),
+            switchMap(() => timer(2000).pipe(takeUntil(shouldHideSpinner)))
         )
 
         /**
